@@ -4,6 +4,9 @@ from AccesoDatos.repositorios import db
 class ServicioAgenda:
     @staticmethod
     def verificar_disponibilidad(medico, fecha):
+        hora_decimal = fecha.hour + (fecha.minute / 60.0)
+        if hora_decimal < 8.0 or hora_decimal > 18.0:
+            return False
         citas_existentes = db.obtener_citas_medico(medico.id_medico, fecha)
         for c in citas_existentes:
             if c.fecha == fecha and c.estado != "Cancelado":
@@ -12,9 +15,11 @@ class ServicioAgenda:
 
     @staticmethod
     def asignar_cita(id_cita, paciente, medico, fecha, origen="Web"):
+        if not paciente.num_doc or not paciente.num_doc.strip() or not paciente.nombre or not paciente.nombre.strip():
+            return False, "Error: El documento y el nombre del paciente son obligatorios."
         if ServicioAgenda.verificar_disponibilidad(medico, fecha):
             nueva_cita = Cita(id_cita, paciente, medico, fecha, origen)
             nueva_cita.estado = "Ocupado"
             db.guardar_cita(nueva_cita)
             return True, "Cita asignada exitosamente."
-        return False, "Error: El horario ya fue asignado o el médico está ocupado."
+        return False, "Error: Horario fuera de atención (08:00 - 18:00) o médico ocupado."
