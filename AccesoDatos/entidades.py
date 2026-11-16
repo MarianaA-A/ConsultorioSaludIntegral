@@ -16,6 +16,13 @@ class Paciente:
         self.nombre = nombre
         self.telefono = telefono
 
+class Medico(Usuario):
+    def __init__(self, id_usuario, nombre, correo, contrasena, id_medico, especialidad, tarifa):
+        super().__init__(id_usuario, nombre, correo, contrasena, rol="Medico")
+        self.id_medico = id_medico
+        self.especialidad = especialidad
+        self.tarifa = tarifa
+
 class Cita:
     def __init__(self, id_cita, paciente, medico, fecha, origen="Web"):
         self.id_cita = id_cita
